@@ -46,8 +46,8 @@ package body ST7735 is
 	  Vertical            => ST7735R.Vertical_Refresh_Top_Bottom,
 	  Horizontal          => ST7735R.Horizontal_Refresh_Left_Right,
 	  Row_Addr_Order      => ST7735R.Row_Address_Bottom_Top,
-	  Column_Addr_Order   => ST7735R.Column_Address_Right_Left,
-	  Row_Column_Exchange => False);
+	  Column_Addr_Order   => (if LCD.Orientation = LANDSCAPE then ST7735R.Column_Address_Left_Right else ST7735R.Column_Address_Right_Left),
+	  Row_Column_Exchange => (if LCD.Orientation = LANDSCAPE then True else False));
 
 		LCD.Set_Pixel_Format (ST7735R.Pixel_16bits);
 

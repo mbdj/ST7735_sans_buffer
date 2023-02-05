@@ -18,6 +18,7 @@ package ST7735 is
 --  Il faut refaire le dessin complet avant chaque Display
 --
 
+	type Type_Orientation is (LANDSCAPE, PORTRAIT);
 
 		type ST7735
 	  (Port                : not null Any_SPI_Port;
@@ -31,6 +32,7 @@ package ST7735 is
 	 SPI_MOSI            :  not null Any_GPIO_Point;
 	 Width               :  Natural;
 	 Height              :  Natural;
+	 	 Orientation         :  Type_Orientation;
 	 Color_Correction    :  Boolean)
 	is limited new ST7735R.ST7735R_Screen with private;
 
@@ -60,6 +62,7 @@ private
 	 SPI_MOSI            :  not null Any_GPIO_Point;
 	 Width               :  Natural;
 	 Height              :  Natural;
+	 	 Orientation         :  Type_Orientation;
 	 Color_Correction    :  Boolean)
 	is limited new ST7735R.ST7735R_Screen
 	  (Port         => Port,

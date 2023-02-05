@@ -45,6 +45,7 @@ procedure Testst7735 is
 										 SPI_MOSI         => STM32.Device.PB15'Access,  -- à raccorder à SDA              (SPI1 : PA7 ; SPI2 : PB15)
 										 Width            => 128,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
 										 Height           => 160,
+										 Orientation      => PORTRAIT,
 										 Color_Correction => True);
 
 	Compteur : Natural := 0; --  compteur affiché sur le ST7735
