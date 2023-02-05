@@ -1,8 +1,10 @@
 with HAL.Bitmap;
+with HAL.Time;
 with ST7735R;
 with HAL; use HAL;
-with STM32.GPIO;
 with SPI; use SPI;
+with HAL.SPI; use HAL.SPI;
+with HAL.GPIO; use HAL.GPIO;
 
 
 package ST7735 is
@@ -16,21 +18,24 @@ package ST7735 is
 --  Il faut refaire le dessin complet avant chaque Display
 --
 
-	type ST7735 is limited new ST7735R.ST7735R_Screen with private;
 
-	type Type_Orientation is (LANDSCAPE, PORTRAIT);
+		type ST7735
+	  (Port                : not null Any_SPI_Port;
+	 CS                  : not null Any_GPIO_Point;
+	 RS                  : not null Any_GPIO_Point;
+	 RST                 : not null Any_GPIO_Point;
+	 Time                : not null HAL.Time.Any_Delays;
+	 Choix_SPI           :  SPI.Choix_SPI;
+	 SPI_SCK             :  not null Any_GPIO_Point;
+	 SPI_MISO            :  not null Any_GPIO_Point;
+	 SPI_MOSI            :  not null Any_GPIO_Point;
+	 Width               :  Natural;
+	 Height              :  Natural;
+	 Color_Correction    :  Boolean)
+	is limited new ST7735R.ST7735R_Screen with private;
 
 	--  initialisation de l'écran et du buffer
-	procedure Initialize (LCD            : in out ST7735;
-							  Choix_SPI      : in SPI.Choix_SPI;
-							  SPI_SCK        : in STM32.GPIO.GPIO_Point;
-							  SPI_MISO       : in STM32.GPIO.GPIO_Point;
-							  SPI_MOSI       : in STM32.GPIO.GPIO_Point;
-							  PIN_RS         : in out STM32.GPIO.GPIO_Point;
-							  PIN_RST        : in out STM32.GPIO.GPIO_Point;
-							  PIN_CS         : in out STM32.GPIO.GPIO_Point;
-							  Width          : in Natural := 128;  --  les spécifications du ST7735 sont données en orientation portrait
-							  Height         : in Natural := 160);  --  les spécifications du ST7735 sont données en orientation portrait
+	procedure Initialize (LCD : in out ST7735);
 
 	--  retourne la bitmap sur laquelle on peut dessiner
 	--  pour écrire : utiliser les primitives du package Bitmapped_Drawing / Soft_Drawing_Bitmap
@@ -43,16 +48,24 @@ package ST7735 is
 private
 
 	--  type ST7735_Buffering is record
-	type ST7735 is limited new ST7735R.ST7735R_Screen with record
-		Choix_SPI    :  SPI.Choix_SPI;
-		SPI_SCK      :  STM32.GPIO.GPIO_Point;
-		SPI_MISO     :  STM32.GPIO.GPIO_Point;
-		SPI_MOSI     :  STM32.GPIO.GPIO_Point;
-		PIN_RS       :  STM32.GPIO.GPIO_Point;
-		PIN_RST      :  STM32.GPIO.GPIO_Point;
-		PIN_CS       :  STM32.GPIO.GPIO_Point;
-		Width        :  Natural := 128;
-		Height       :  Natural := 160;
-	end record;
+	type ST7735
+	  (Port                : not null Any_SPI_Port;
+	 CS                  : not null Any_GPIO_Point;
+	 RS                  : not null Any_GPIO_Point;
+	 RST                 : not null Any_GPIO_Point;
+	 Time                : not null HAL.Time.Any_Delays;
+	 Choix_SPI           :  SPI.Choix_SPI;
+	 SPI_SCK             :  not null Any_GPIO_Point;
+	 SPI_MISO            :  not null Any_GPIO_Point;
+	 SPI_MOSI            :  not null Any_GPIO_Point;
+	 Width               :  Natural;
+	 Height              :  Natural;
+	 Color_Correction    :  Boolean)
+	is limited new ST7735R.ST7735R_Screen
+	  (Port         => Port,
+	 CS           => CS,
+	 RS           => RS,
+	 RST          => RST,
+	 Time         => Time) with null record;
 
 end ST7735;

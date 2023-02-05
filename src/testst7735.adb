@@ -12,7 +12,6 @@ pragma Unreferenced (Last_Chance_Handler);
 
 
 with Ada.Real_Time; use Ada.Real_Time;
-
 with SPI;
 
 with ST7735; use ST7735;
@@ -35,26 +34,25 @@ procedure Testst7735 is
 	Period       : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds (50);
 	Next_Release : Ada.Real_Time.Time := Ada.Real_Time.Clock;
 
-	Ecran_ST7735 : ST7735.ST7735 (Port   => STM32.Device.SPI_2'Access,
-										 CS     => STM32.Device.PB4'Access,
-										 RS     => STM32.Device.PB10'Access,
-										 RST    => STM32.Device.PA8'Access,
-										 Time   => Ravenscar_Time.Delays);
+	Ecran_ST7735 : ST7735.ST7735 (Port             => STM32.Device.SPI_2'Access,
+										 CS               => STM32.Device.PB4'Access,
+										 RS               => STM32.Device.PB10'Access,
+										 RST              => STM32.Device.PA8'Access,
+										 Time             => Ravenscar_Time.Delays,
+										 Choix_SPI        => SPI.SPI2,
+										 SPI_SCK          => STM32.Device.PB13'Access,  -- à raccorder à SCK ou SCL       (SPI1 : PA5 ; SPI2 : PB13)
+										 SPI_MISO         => STM32.Device.PB14'Access,  -- pas utilisé sur l'écran ST7735 (SPI1 : PA7 ; SPI2 : PB14)
+										 SPI_MOSI         => STM32.Device.PB15'Access,  -- à raccorder à SDA              (SPI1 : PA7 ; SPI2 : PB15)
+										 Width            => 128,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
+										 Height           => 160,
+										 Color_Correction => True);
 
 	Compteur : Natural := 0; --  compteur affiché sur le ST7735
 	PosY     : Natural := 0; --  position où on affiche le compteur
 
 begin
 	--  Initialiser l'écran TFT ST7735
-	Ecran_ST7735.Initialize (Choix_SPI    => SPI.SPI2,
-								  SPI_SCK      => STM32.Device.PB13,
-								  SPI_MISO     => STM32.Device.PB14,
-								  SPI_MOSI     => STM32.Device.PB15,
-								  PIN_RS       => STM32.Device.PB10,
-								  PIN_RST      => STM32.Device.PA8,
-								  PIN_CS       => STM32.Device.PB4,
-								  Width        => 160,
-								  Height       => 128);
+	Ecran_ST7735.Initialize;
 
 
 	--  Set_Source fixe la couleur de tracé
@@ -66,37 +64,24 @@ begin
 	STM32.Board.Turn_On (STM32.Board.Green_LED);
 
 
-	Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Dark_Magenta);
+	Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Purple);
 	Ecran_ST7735.BitMap.Fill;
 	Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
-										  Start      => (40, 40),
+										  Start      => (0, 0),
 										  Msg        => ("ST7735"),
 										  Font       => BMP_Fonts.Font8x8,
 										  Foreground => HAL.Bitmap.Red,
-										  Background => HAL.Bitmap.Green);
+										  Background => HAL.Bitmap.Blue);
 
 	loop
 		STM32.Board.Toggle (STM32.Board.Green_LED);
 
-		--  écriture sur le ST7735
-		--  nb : il faut redessiner toute l'image à chaque fois
-		--  il faut dessiner dans la BitMap puis afficher sur l'écran physique avec Display
-
-		--  Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Dark_Magenta);
-		--  Ecran_ST7735.BitMap.Fill;
-		--  Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
-		--  									Start      => (40, 40),
-		--  									Msg        => ("ST7735"),
-		--  									Font       => BMP_Fonts.Font8x8,
-		--  									Foreground => HAL.Bitmap.Red,
-		--  									Background => HAL.Bitmap.Green);
-
 		Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
-											Start      => (30, PosY),
+											Start      => (0, PosY),
 											Msg        => (Compteur'Image),
 											Font       => BMP_Fonts.Font12x12,
-											Foreground => HAL.Bitmap.Green_Yellow,
-											Background => HAL.Bitmap.Blue);
+											Foreground => HAL.Bitmap.Red,
+											Background => HAL.Bitmap.Green);
 
 		PosY := (if PosY > 160 then 0 else PosY + 1);
 

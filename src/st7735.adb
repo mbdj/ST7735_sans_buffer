@@ -1,23 +1,14 @@
+with HAL.Bitmap;
+with STM32.GPIO;
+
 package body ST7735 is
-
-
 
 	----------------
 	-- Initialize --
 	----------------
 
-	procedure Initialize  (LCD         :  in out ST7735;
-								Choix_SPI   : in SPI.Choix_SPI;
-								SPI_SCK     : in STM32.GPIO.GPIO_Point;
-								SPI_MISO    : in STM32.GPIO.GPIO_Point;
-								SPI_MOSI    : in STM32.GPIO.GPIO_Point;
-								PIN_RS      : in out STM32.GPIO.GPIO_Point;
-								PIN_RST     : in out STM32.GPIO.GPIO_Point;
-								PIN_CS      : in out STM32.GPIO.GPIO_Point;
-								Width       : in Natural := 128;  --  les spécifications du ST7735 sont données en orientation portrait
-								Height      : in Natural := 160) is  --  les spécifications du ST7735 sont données en orientation portrait
-
-		--  rajouter le paramètre landscape/portrait
+	procedure Initialize  (LCD         :  in out ST7735) is
+	--  rajouter le paramètre landscape/portrait
 
 		Max_Dim, Min_Dim : Natural;  --  dimensions max et min de l'écran
 
@@ -26,39 +17,40 @@ package body ST7735 is
 		--  Le driver ST7735 considère que l'écran est en format PORTRAIT
 		--  C'est pourquoi ici on redresse les dimensions
 		--  si jamais elles ont été passées à l'envers
-		if (Width > Height) then
-			Max_Dim := Width;
-			Min_Dim := Height;
+		if (LCD.Width > LCD.Height) then
+			Max_Dim := LCD.Width;
+			Min_Dim := LCD.Height;
 		else
-			Max_Dim := Height;
-			Min_Dim := Width;
+			Max_Dim := LCD.Height;
+			Min_Dim := LCD.Width;
 		end if;
 
 
-		Initialise_SPI (SPI      => Choix_SPI,
-						SPI_SCK  => SPI_SCK,
-						SPI_MISO => SPI_MISO,
-						SPI_MOSI => SPI_MOSI,
-						PIN_RS   => PIN_RS,
-						PIN_RST  => PIN_RST,
-						PIN_CS   => PIN_CS);
+		Initialise_SPI (SPI      => LCD.Choix_SPI,
+						SPI_SCK  => STM32.GPIO.GPIO_Point (LCD.SPI_SCK.all),
+						SPI_MISO => STM32.GPIO.GPIO_Point (LCD.SPI_MISO.all),
+						SPI_MOSI => STM32.GPIO.GPIO_Point (LCD.SPI_MOSI.all),
+						PIN_RS   => STM32.GPIO.GPIO_Point (LCD.RS.all),
+						PIN_RST  => STM32.GPIO.GPIO_Point (LCD.RST.all),
+						PIN_CS   => STM32.GPIO.GPIO_Point (LCD.CS.all));
 
 		--
 		--  séquence d'initialisation de l'écran ST7735 décrite ici :
 		--  https://github.com/AdaCore/Ada_Drivers_Library/blob/master/boards/OpenMV2/src/openmv-lcd_shield.adb
 		--
 
-		LCD.Initialize;
+		ST7735R.Initialize (LCD => ST7735R.ST7735R_Screen (LCD));
+
 
 		LCD.Set_Memory_Data_Access
-		  (	 Color_Order         => ST7735R.RGB_Order,
+		  (	 Color_Order         => (if LCD.Color_Correction then ST7735R.BGR_Order else ST7735R.RGB_Order),
 	  Vertical            => ST7735R.Vertical_Refresh_Top_Bottom,
 	  Horizontal          => ST7735R.Horizontal_Refresh_Left_Right,
 	  Row_Addr_Order      => ST7735R.Row_Address_Bottom_Top,
 	  Column_Addr_Order   => ST7735R.Column_Address_Right_Left,
 	  Row_Column_Exchange => False);
 
-		LCD.Set_Pixel_Format ( ST7735R.Pixel_16bits);
+		LCD.Set_Pixel_Format (ST7735R.Pixel_16bits);
 
 		LCD.Set_Frame_Rate_Normal (RTN         => 16#01#,
 									  Front_Porch => 16#2C#,
@@ -98,6 +90,10 @@ package body ST7735 is
 						 Y_Start => 0,
 						 Y_End   => UInt16 (Max_Dim - 1));
 
+		if LCD.Color_Correction then
+			LCD.Display_Inversion_On;
+		end if;
+
 		LCD.Turn_On;
 
 		LCD.Initialize_Layer (Layer  => 1,
@@ -106,26 +102,6 @@ package body ST7735 is
 								Y      => 0 ,
 								Width  => Min_Dim,
 								Height => Max_Dim);
-
-
-		--  initialisation de BitMap_Buffer
-		--  voir https://github.com/AdaCore/Ada_Drivers_Library/blob/master/boards/OpenMV2/src/openmv-bitmap.adb
-
-
-		--  if (Orientation = LANDSCAPE) then
-		--  	LCD.Hidden_Buffer (Layer => 1).Actual_Width := Max_Dim;  --  inversion pour le mode landscape (sinon Width)
-		--  	LCD.BitMap_Buffer.Actual_Height := Min_Dim;  --  inversion pour le mode landscape (sinon Height)
-		--  	LCD.BitMap_Buffer.Currently_Swapped := True; --  inversion pour le mode landscape (sinon False)
-		--  else
-		--  	LCD.BitMap_Buffer.Actual_Width := Min_Dim;  --  inversion pour le mode landscape (sinon Width)
-		--  	LCD.BitMap_Buffer.Actual_Height := Max_Dim;  --  inversion pour le mode landscape (sinon Height)
-		--  	LCD.BitMap_Buffer.Currently_Swapped := False; --  inversion pour le mode landscape (sinon False)
-		--  end if;
-		--
-		--  LCD.BitMap_Buffer.Actual_Color_Mode := HAL.Bitmap.RGB_565;
-
-
-		--  LCD.BitMap_Buffer.Addr := LCD.Pixel_Data_BitMap_Buffer.all'Address;
 
 	end Initialize;
 
