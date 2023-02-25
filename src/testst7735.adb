@@ -30,11 +30,15 @@ with Ravenscar_Time;
 
 procedure Testst7735 is
 
-	Hauteur : constant Natural := 160;
+----------------------------------------------------
+	function Min (A, B : in Natural) return Natural is (if A > B then B else A);
+	function Max (A, B : in Natural) return Natural is (if A > B then A else B);
+	----------------------------------------------------
 
-	--  sur l'écran 80x160 il y a un offset à l'affichage ; pas résolu ...
-	Offset_X : constant Natural := 26;
-	Offset_Y : constant Natural := 2;
+	Width       :  constant Natural := 80;
+	Height      :  constant Natural := 160;
+	Orientation : constant Type_Orientation := Portrait;
+
 
 	--  dimensions de l'écran ST7735
 	Period       : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds (50);
@@ -49,9 +53,9 @@ procedure Testst7735 is
 										 SPI_SCK          => STM32.Device.PB13'Access,  -- à raccorder à SCK ou SCL       (SPI1 : PA5 ; SPI2 : PB13)
 										 SPI_MISO         => STM32.Device.PB14'Access,  -- pas utilisé sur l'écran ST7735 (SPI1 : PA7 ; SPI2 : PB14)
 										 SPI_MOSI         => STM32.Device.PB15'Access,  -- à raccorder à SDA              (SPI1 : PA7 ; SPI2 : PB15)
-										 Width            => Hauteur + Offset_Y,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
-										 Height           => 160,
-										 Orientation      => portrait,
+										 Width            => Width,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
+										 Height           => Height,
+										 Orientation      => Portrait,
 										 Color_Correction => True);
 
 	Compteur : Natural := 0; --  compteur affiché sur le ST7735
@@ -61,36 +65,48 @@ begin
 	--  Initialiser l'écran TFT ST7735
 	Ecran_ST7735.Initialize;
 
-
-	--  Set_Source fixe la couleur de tracé
-	Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Dark_Magenta);
-	Ecran_ST7735.BitMap.Fill;
-
 	--  initialiser la led utilisateur verte
 	STM32.Board.Initialize_LEDs; -- utiliser uniquement avec le ST7735 sur SPI2 car les pins PA5,PA6,PA7 de SPI1 sont utilisées pour les LED
 	STM32.Board.Turn_On (STM32.Board.Green_LED);
 
-
-	Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Purple);
+	--  \u00e9criture sur le ST7735
+	--  nb : il faut redessiner toute l'image \u00e0 chaque fois
+	--  il faut dessiner dans la BitMap puis afficher sur l'\u00e9cran physique avec Display
+	Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Dark_Magenta);
 	Ecran_ST7735.BitMap.Fill;
 	Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
-										  Start      => (Offset_X, Offset_Y),
+										  Start      => (0, 0),
 										  Msg        => ("ST7735"),
 										  Font       => BMP_Fonts.Font8x8,
 										  Foreground => HAL.Bitmap.Red,
-										  Background => HAL.Bitmap.Blue);
+										  Background => HAL.Bitmap.Green);
 
+	Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
+										  Start      => (30, PosY),
+										  Msg        => (Compteur'Image),
+										  Font       => BMP_Fonts.Font12x12,
+										  Foreground => HAL.Bitmap.White,
+										  Background => HAL.Bitmap.Blue);
 	loop
 		STM32.Board.Toggle (STM32.Board.Green_LED);
 
+		declare
+			Hauteur : Integer := (if Orientation = LANDSCAPE then Min (Width, Height) else Max (Width, Height));
+		begin
+			PosY := (if PosY > Hauteur then 0 else PosY + 1);
+		end;
+
+		Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Cyan);
+
 		Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
-											Start      => (Offset_X, PosY + Offset_Y + 8),
+											Start      => (30, PosY),
 											Msg        => (Compteur'Image),
 											Font       => BMP_Fonts.Font12x12,
-											Foreground => HAL.Bitmap.Red,
-											Background => HAL.Bitmap.Green);
+											Foreground => HAL.Bitmap.White,
+											Background => HAL.Bitmap.Blue);
 
-		PosY := (if PosY > Hauteur then 0 else PosY + 1);
+		--  affiche sur l'écran physique ce qui a été dessiné sur la bitmap
+		Ecran_ST7735.Display;
 
 		Compteur := Compteur + 1 ;
 
@@ -98,5 +114,4 @@ begin
 		delay until Next_Release;
 
 	end loop;
-
 end Testst7735;
