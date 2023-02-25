@@ -35,7 +35,7 @@ procedure Testst7735 is
 	function Max (A, B : in Natural) return Natural is (if A > B then A else B);
 	----------------------------------------------------
 
-	Width       :  constant Natural := 80;
+	Width       :  constant Natural := 128;
 	Height      :  constant Natural := 160;
 	Orientation : constant Type_Orientation := Landscape;
 
@@ -56,7 +56,6 @@ procedure Testst7735 is
 										 Width            => Width,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
 										 Height           => Height,
 										 Orientation      => Orientation,
-
 										 Color_Correction => True);
 
 	Compteur : Natural := 0; --  compteur affiché sur le ST7735
