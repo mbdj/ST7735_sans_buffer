@@ -35,7 +35,7 @@ procedure Testst7735 is
 	function Max (A, B : in Natural) return Natural is (if A > B then A else B);
 	----------------------------------------------------
 
-	Width       :  constant Natural := 80;
+	Width       :  constant Natural := 128;
 	Height      :  constant Natural := 160;
 	Orientation : constant Type_Orientation := Landscape;
 
