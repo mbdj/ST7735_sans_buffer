@@ -85,9 +85,9 @@ package body ST7735 is
 		LCD.Set_Vcom ( 16#E#);
 
 		LCD.Set_Address (X_Start => 0,
-						 X_End   => UInt16 (Min_Dim - 1 ) ,
+						 X_End   => UInt16 (Min_Dim - 1),
 						 Y_Start => 0,
-						 Y_End   => UInt16 (Max_Dim - 1 ));
+						 Y_End   => UInt16 (Max_Dim - 1));
 
 		if LCD.Color_Correction then
 			LCD.Display_Inversion_On;

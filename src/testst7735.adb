@@ -30,7 +30,7 @@ with Ravenscar_Time;
 
 procedure Testst7735 is
 
-----------------------------------------------------
+	----------------------------------------------------
 	function Min (A, B : in Natural) return Natural is (if A > B then B else A);
 	function Max (A, B : in Natural) return Natural is (if A > B then A else B);
 	----------------------------------------------------
@@ -56,6 +56,7 @@ procedure Testst7735 is
 										 Width            => Width,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
 										 Height           => Height,
 										 Orientation      => Portrait,
+
 										 Color_Correction => True);
 
 	Compteur : Natural := 0; --  compteur affiché sur le ST7735
@@ -91,7 +92,7 @@ begin
 		STM32.Board.Toggle (STM32.Board.Green_LED);
 
 		declare
-			Hauteur : Integer := (if Orientation = LANDSCAPE then Min (Width, Height) else Max (Width, Height));
+			Hauteur : constant Integer := (if Orientation = LANDSCAPE then Min (Width, Height) else Max (Width, Height));
 		begin
 			PosY := (if PosY > Hauteur then 0 else PosY + 1);
 		end;
