@@ -37,7 +37,7 @@ procedure Testst7735 is
 
 	Width       :  constant Natural := 80;
 	Height      :  constant Natural := 160;
-	Orientation : constant Type_Orientation := Portrait;
+	Orientation : constant Type_Orientation := Landscape;
 
 
 	--  dimensions de l'écran ST7735
@@ -55,7 +55,7 @@ procedure Testst7735 is
 										 SPI_MOSI         => STM32.Device.PB15'Access,  -- à raccorder à SDA              (SPI1 : PA7 ; SPI2 : PB15)
 										 Width            => Width,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
 										 Height           => Height,
-										 Orientation      => Portrait,
+										 Orientation      => Orientation,
 
 										 Color_Correction => True);
 
@@ -83,7 +83,7 @@ begin
 										  Background => HAL.Bitmap.Green);
 
 	Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
-										  Start      => (30, PosY),
+										  Start      => (0, PosY),
 										  Msg        => (Compteur'Image),
 										  Font       => BMP_Fonts.Font12x12,
 										  Foreground => HAL.Bitmap.White,
@@ -100,7 +100,7 @@ begin
 		Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Cyan);
 
 		Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
-											Start      => (30, PosY),
+											Start      => (0, PosY),
 											Msg        => (Compteur'Image),
 											Font       => BMP_Fonts.Font12x12,
 											Foreground => HAL.Bitmap.White,
