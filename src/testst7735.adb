@@ -37,7 +37,7 @@ procedure Testst7735 is
 
 	Width       :  constant Natural := 160;
 	Height      :  constant Natural := 128;
-	Orientation : constant Type_Orientation := landscape;
+	Orientation : constant Type_Orientation := Landscape;
 
 
 	--  dimensions de l'écran ST7735
@@ -53,8 +53,8 @@ procedure Testst7735 is
 										 SPI_SCK          => STM32.Device.PB13'Access,  -- à raccorder à SCK ou SCL       (SPI1 : PA5 ; SPI2 : PB13)
 										 SPI_MISO         => STM32.Device.PB14'Access,  -- pas utilisé sur l'écran ST7735 (SPI1 : PA7 ; SPI2 : PB14)
 										 SPI_MOSI         => STM32.Device.PB15'Access,  -- à raccorder à SDA              (SPI1 : PA7 ; SPI2 : PB15)
-										 Width            => 128,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
-										 Height           => 160,
+										 Width            => Width,              -- backlight (LEDA ou BLK) doit être raccordé à +3.3V ou +5V
+										 Height           => Height,
 										 Orientation      => Orientation,
 										 Color_Correction => False);
 
@@ -72,7 +72,7 @@ begin
 	--  \u00e9criture sur le ST7735
 	--  nb : il faut redessiner toute l'image \u00e0 chaque fois
 	--  il faut dessiner dans la BitMap puis afficher sur l'\u00e9cran physique avec Display
-	Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Red);
+	Ecran_ST7735.BitMap.Set_Source (ARGB => HAL.Bitmap.Green);
 	Ecran_ST7735.BitMap.Fill;
 	Bitmapped_Drawing.Draw_String (Ecran_ST7735.BitMap.all,
 										  Start      => (0, 0),
