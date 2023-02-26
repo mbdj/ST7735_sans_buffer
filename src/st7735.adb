@@ -6,16 +6,13 @@ package body ST7735 is
 	-- Initialize --
 	----------------
 
-	procedure Initialize  (LCD         :  in out ST7735) is
+	procedure Initialize  (LCD : in out ST7735) is
 	--  rajouter le paramètre landscape/portrait
 
-		Max_Dim, Min_Dim : Natural;  --  dimensions max et min de l'écran
+		Max_Dim, Min_Dim : Natural;
 
 	begin
 
-		--  Le driver ST7735 considère que l'écran est en format PORTRAIT
-		--  C'est pourquoi ici on redresse les dimensions
-		--  si jamais elles ont été passées à l'envers
 		if (LCD.Width > LCD.Height) then
 			Max_Dim := LCD.Width;
 			Min_Dim := LCD.Height;
@@ -84,10 +81,17 @@ package body ST7735 is
 		LCD.Set_Power_Control_5 ( 16#8A#, 16#EE#);
 		LCD.Set_Vcom ( 16#E#);
 
+		if LCD.Orientation = PORTRAIT then
 		LCD.Set_Address (X_Start => 0,
 						 X_End   => UInt16 (Min_Dim - 1),
 						 Y_Start => 0,
 						 Y_End   => UInt16 (Max_Dim - 1));
+		else
+			LCD.Set_Address (X_Start => 0,
+						  X_End   => UInt16 (Max_Dim - 1),
+						  Y_Start => 0,
+						  Y_End   => UInt16 (Min_Dim - 1));
+			end if;
 
 		if LCD.Color_Correction then
 			LCD.Display_Inversion_On;
@@ -95,12 +99,21 @@ package body ST7735 is
 
 		LCD.Turn_On;
 
-		LCD.Initialize_Layer (Layer  => 1,
-								Mode   => HAL.Bitmap.RGB_565,
-								X      => 0,
-								Y      => 0 ,
-								Width  => Min_Dim,
-								Height => Max_Dim);
+		if LCD.Orientation = PORTRAIT then
+			LCD.Initialize_Layer (Layer  => 1,
+								 Mode   => HAL.Bitmap.RGB_565,
+								 X      => 0,
+								 Y      => 0 ,
+								 Width  => Min_Dim,
+								 Height => Max_Dim);
+		else
+			LCD.Initialize_Layer (Layer  => 1,
+								 Mode   => HAL.Bitmap.RGB_565,
+								 X      => 0,
+								 Y      => 0 ,
+								 Width  => Max_Dim,
+								 Height => Min_Dim);
+		end if;
 
 	end Initialize;
 

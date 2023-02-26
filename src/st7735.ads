@@ -20,7 +20,7 @@ package ST7735 is
 
 	type Type_Orientation is (LANDSCAPE, PORTRAIT);
 
-		type ST7735
+	type ST7735
 	  (Port                : not null Any_SPI_Port;
 	 CS                  : not null Any_GPIO_Point;
 	 RS                  : not null Any_GPIO_Point;
@@ -32,8 +32,8 @@ package ST7735 is
 	 SPI_MOSI            :  not null Any_GPIO_Point;
 	 Width               :  Natural;
 	 Height              :  Natural;
-	 	 Orientation         :  Type_Orientation;
-	 Color_Correction    :  Boolean)
+	 Orientation         :  Type_Orientation;
+	 Color_Correction    :  Boolean)  -- les écrans 160x80 nécessitent une correction des couleurs
 	is limited new ST7735R.ST7735R_Screen with private;
 
 	--  initialisation de l'écran et du buffer
@@ -62,7 +62,7 @@ private
 	 SPI_MOSI            :  not null Any_GPIO_Point;
 	 Width               :  Natural;
 	 Height              :  Natural;
-	 	 Orientation         :  Type_Orientation;
+	 Orientation         :  Type_Orientation;
 	 Color_Correction    :  Boolean)
 	is limited new ST7735R.ST7735R_Screen
 	  (Port         => Port,
